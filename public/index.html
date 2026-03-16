@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STEEL LINE | Portfolio Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --olive:       #2B3C16;
+      --olive-mid:   #3D5620;
+      --olive-light: #7A9452;
+      --olive-pale:  #B5C99A;
+      --cream:       #F2EFE5;
+      --cream-dk:    #E6E2D6;
+      --white:       #FFFFFF;
+      --text:        #1A1A18;
+      --text-mid:    #48453F;
+      --text-lt:     #7A756E;
+      --border:      #D6D1C4;
+      --shadow:      0 2px 14px rgba(43,60,22,0.08);
+      --shadow-hov:  0 8px 28px rgba(43,60,22,0.13);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream); color: var(--text);
+      min-height: 100vh; -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── GATE ─── */
+    #gate {
+      position: fixed; inset: 0; background: var(--olive);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 48px; z-index: 1000; transition: opacity 0.4s ease;
+    }
+    #gate.fade-out { opacity: 0; pointer-events: none; }
+    .gate-wordmark {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800;
+      font-size: 72px; letter-spacing: 0.14em; color: var(--cream);
+      text-transform: uppercase; line-height: 1; display: block;
+    }
+    .gate-rule {
+      width: 100%; height: 2px;
+      background: linear-gradient(to right, transparent, var(--olive-light), transparent);
+      margin: 14px 0 10px;
+    }
+    .gate-subtitle {
+      font-size: 11px; font-weight: 500; letter-spacing: 0.35em;
+      text-transform: uppercase; color: var(--olive-pale); display: block;
+    }
+    .gate-form { display: flex; flex-direction: column; gap: 14px; align-items: center; width: 300px; }
+    .gate-input {
+      width: 100%; padding: 15px 20px;
+      background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 4px; color: var(--cream);
+      font-family: 'DM Sans', sans-serif; font-size: 15px;
+      outline: none; transition: border-color 0.2s; text-align: center; letter-spacing: 0.05em;
+    }
+    .gate-input::placeholder { color: rgba(242,239,229,0.3); }
+    .gate-input:focus { border-color: var(--olive-light); }
+    .gate-btn {
+      width: 100%; padding: 15px; background: var(--cream); color: var(--olive);
+      border: none; border-radius: 4px;
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+      font-size: 19px; letter-spacing: 0.18em; text-transform: uppercase;
+      cursor: pointer; transition: background 0.15s, transform 0.1s;
+    }
+    .gate-btn:hover { background: #fff; }
+    .gate-btn:active { transform: scale(0.98); }
+    .gate-error { color: #FF9980; font-size: 12px; letter-spacing: 0.06em; min-height: 18px; text-align: center; }
+
+    /* ─── HEADER ─── */
+    #app { display: none; }
+    #header {
+      background: var(--olive); padding: 0 44px; height: 68px;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 100; border-bottom: 2px solid var(--olive-mid);
+    }
+    .hdr-left { display: flex; flex-direction: column; gap: 1px; }
+    .hdr-wordmark {
+      font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 26px;
+      letter-spacing: 0.2em; color: var(--cream); text-transform: uppercase; line-height: 1;
+    }
+    .hdr-sub { font-size: 10px; font-weight: 500; letter-spacing: 0.3em; text-transform: uppercase; color: var(--olive-light); }
+    .hdr-right { display: flex; align-items: center; gap: 12px; }
+    .hdr-btn {
+      display: flex; align-items: center; gap: 7px; padding: 8px 16px;
+      background: transparent; border: 1px solid rgba(122,148,82,0.45);
+      border-radius: 3px; color: var(--olive-light);
+      font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+    }
+    .hdr-btn:hover { background: rgba(122,148,82,0.1); border-color: var(--olive-light); color: var(--cream); }
+    .hdr-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .hdr-btn.spinning svg { animation: spin 0.9s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── STATUS BAR ─── */
+    #status-bar {
+      background: var(--cream-dk); border-bottom: 1px solid var(--border);
+      padding: 9px 44px; display: flex; align-items: center;
+      justify-content: space-between; font-size: 11.5px; color: var(--text-lt);
+    }
+    .status-left { display: flex; align-items: center; gap: 8px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; background: #6DBF70; flex-shrink: 0; }
+    .dot.loading { background: #F0B429; animation: blink 1.2s ease-in-out infinite; }
+    .dot.error   { background: #C4432A; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+
+    /* ─── MAIN ─── */
+    #main { max-width: 1440px; margin: 0 auto; padding: 40px 44px 60px; }
+    .section-eyebrow {
+      font-size: 10.5px; font-weight: 600; letter-spacing: 0.32em;
+      text-transform: uppercase; color: var(--text-lt); margin-bottom: 28px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .section-eyebrow::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* ─── NOTICE ─── */
+    #notice {
+      background: #FFFBF0; border: 1px solid #E8C84A; border-radius: 5px;
+      padding: 13px 18px; margin-bottom: 24px;
+      font-size: 13px; color: #5C4A00; line-height: 1.55; display: none;
+    }
+
+    /* ─── GRID ─── */
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+
+    /* ─── CARDS ─── */
+    .card {
+      background: var(--white); border-radius: 6px;
+      border: 1px solid var(--border); border-top: 3px solid var(--olive);
+      box-shadow: var(--shadow); display: flex; flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s; overflow: hidden;
+    }
+    .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hov); }
+    .card-head { padding: 18px 20px 14px; border-bottom: 1px solid var(--cream-dk); }
+    .card-sector { font-size: 9.5px; font-weight: 600; letter-spacing: 0.26em; text-transform: uppercase; color: var(--olive-light); margin-bottom: 5px; }
+    .card-co { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 28px; letter-spacing: 0.04em; color: var(--olive); text-transform: uppercase; line-height: 1; }
+    .card-body { padding: 16px 20px; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+    .card-headline { font-size: 13.5px; font-weight: 600; color: var(--text); line-height: 1.45; }
+    .card-summary  { font-size: 13px; color: var(--text-mid); line-height: 1.65; flex: 1; }
+    .card-foot { padding: 12px 20px; border-top: 1px solid var(--cream-dk); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .card-meta { font-size: 11px; color: var(--text-lt); line-height: 1.4; min-width: 0; flex: 1; }
+    .card-link {
+      font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--olive); text-decoration: none; border-bottom: 1px solid var(--olive-pale);
+      padding-bottom: 1px; white-space: nowrap; flex-shrink: 0;
+      transition: color 0.15s, border-color 0.15s;
+    }
+    .card-link:hover { color: var(--olive-mid); border-color: var(--olive-mid); }
+
+    /* ─── SHIMMER ─── */
+    .shimmer {
+      background: linear-gradient(90deg, var(--cream-dk) 25%, var(--cream) 50%, var(--cream-dk) 75%);
+      background-size: 200% 100%; animation: shimmer 1.6s ease-in-out infinite;
+      border-radius: 3px; color: transparent !important; user-select: none;
+    }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    @media (max-width: 1150px) { .grid { grid-template-columns: repeat(3,1fr); } }
+    @media (max-width: 820px)  {
+      .grid { grid-template-columns: repeat(2,1fr); }
+      #header, #status-bar, #main { padding-left: 22px; padding-right: 22px; }
+    }
+    @media (max-width: 520px)  { .grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<div id="gate">
+  <div style="text-align:center">
+    <span class="gate-wordmark">Steel Line</span>
+    <div class="gate-rule"></div>
+    <span class="gate-subtitle">Portfolio Intelligence</span>
+  </div>
+  <div class="gate-form">
+    <input type="password" id="pwd" class="gate-input" placeholder="Enter password" autocomplete="current-password">
+    <div class="gate-error" id="gate-err"></div>
+    <button class="gate-btn" onclick="checkPwd()">Access Dashboard</button>
+  </div>
+</div>
+
+<div id="app">
+  <div id="header">
+    <div class="hdr-left">
+      <span class="hdr-wordmark">Steel Line</span>
+      <span class="hdr-sub">Portfolio Intelligence</span>
+    </div>
+    <div class="hdr-right">
+      <button class="hdr-btn" id="refresh-btn" onclick="doManualRefresh()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        </svg>
+        Refresh All
+      </button>
+    </div>
+  </div>
+
+  <div id="status-bar">
+    <div class="status-left">
+      <div class="dot loading" id="dot"></div>
+      <span id="status-txt">Loading...</span>
+    </div>
+    <span id="last-upd"></span>
+  </div>
+
+  <div id="main">
+    <div class="section-eyebrow">Portfolio Companies — Latest Intelligence</div>
+    <div id="notice"></div>
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+
+<script>
+const PASSWORD  = 'steelline';
+const CACHE_KEY = 'sl_vercel_v1';
+const CACHE_TTL = 23 * 60 * 60 * 1000;
+
+const COMPANIES = [
+  { id:'armada',     name:'Armada',     sector:'Edge AI Infrastructure', query:'Armada AI edge computing company news 2026' },
+  { id:'packsmith',  name:'Packsmith',  sector:'AI Fulfillment',         query:'Packsmith AI fulfillment platform news 2026' },
+  { id:'persona',    name:'Persona AI', sector:'Humanoid Robotics',      query:'Persona AI humanoid robot company news 2026' },
+  { id:'valar',      name:'Valar',      sector:'Deep Tech',              query:'Valar Atomics micro nuclear reactor startup news 2026' },
+  { id:'groq',       name:'Groq AI',    sector:'AI Inference',           query:'Groq AI LPU inference chips news 2026' },
+  { id:'databricks', name:'Databricks', sector:'Data + AI Platform',     query:'Databricks company funding product news 2026' },
+  { id:'spacex',     name:'SpaceX',     sector:'Aerospace',              query:'SpaceX rocket launch Starship news 2026' },
+  { id:'openai',     name:'OpenAI',     sector:'Frontier AI',            query:'OpenAI product announcement news 2026' },
+];
+
+/* ── Auth ── */
+function checkPwd() {
+  const v = document.getElementById('pwd').value;
+  if (v === PASSWORD) {
+    const gate = document.getElementById('gate');
+    gate.classList.add('fade-out');
+    setTimeout(() => {
+      gate.style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      init();
+    }, 380);
+  } else {
+    const err = document.getElementById('gate-err');
+    err.textContent = 'Incorrect password.';
+    document.getElementById('pwd').value = '';
+    setTimeout(() => err.textContent = '', 3000);
+  }
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('gate').style.display !== 'none') checkPwd();
+});
+
+/* ── Status ── */
+function setStatus(state, msg) {
+  document.getElementById('dot').className = 'dot' + (state !== 'ok' ? ' ' + state : '');
+  document.getElementById('status-txt').textContent = msg;
+}
+function setLastUpd(ts) {
+  if (!ts) { document.getElementById('last-upd').textContent = ''; return; }
+  const d = new Date(ts);
+  document.getElementById('last-upd').textContent =
+    'Updated ' + d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) +
+    ' at ' + d.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+}
+function showNotice(html) {
+  const n = document.getElementById('notice');
+  n.innerHTML = html; n.style.display = html ? 'block' : 'none';
+}
+
+/* ── Cache — never write failures ── */
+function readCache() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const c = JSON.parse(raw);
+    if (Date.now() - c.ts > CACHE_TTL) return null;
+    return c;
+  } catch(e) { return null; }
+}
+function writeCache(data) {
+  const anySuccess = Object.values(data).some(v => v !== null);
+  if (!anySuccess) return; // never cache a full failure set
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), data })); } catch(e) {}
+}
+
+/* ── Grid ── */
+function buildGrid() {
+  document.getElementById('grid').innerHTML = COMPANIES.map(c => `
+    <div class="card" id="c-${c.id}">
+      <div class="card-head">
+        <div class="card-sector">${c.sector}</div>
+        <div class="card-co">${c.name}</div>
+      </div>
+      <div class="card-body">
+        <div class="card-headline shimmer">&nbsp;</div>
+        <div class="card-summary shimmer" style="height:80px">&nbsp;</div>
+      </div>
+      <div class="card-foot" style="display:none">
+        <div class="card-meta"></div>
+        <a class="card-link" href="#" target="_blank" rel="noopener">Read More →</a>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderCard(c, data) {
+  const el = document.getElementById('c-' + c.id);
+  if (!el) return;
+  const hl   = el.querySelector('.card-headline');
+  const sum  = el.querySelector('.card-summary');
+  const ft   = el.querySelector('.card-foot');
+  const meta = el.querySelector('.card-meta');
+  const link = el.querySelector('.card-link');
+  hl.classList.remove('shimmer'); sum.classList.remove('shimmer'); sum.style.height = '';
+
+  if (!data) {
+    hl.textContent = ''; ft.style.display = 'none';
+    sum.innerHTML = '<span style="color:var(--text-lt);font-size:12px;">Failed to load. Try Refresh All.</span>';
+    return;
+  }
+  hl.textContent  = data.headline || 'No headline found.';
+  sum.textContent = '';
+  sum.style.display = 'none';
+  meta.innerHTML  = [data.source, data.date].filter(Boolean).join(' &middot; ');
+  ft.style.display = 'flex';
+  if (data.url && data.url !== '#') { link.href = data.url; link.style.display = ''; }
+  else { link.style.display = 'none'; }
+}
+
+/* ── Fetch one via Vercel function ── */
+async function fetchOne(company) {
+  const res = await fetch('/api/news', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ query: company.query, name: company.name })
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
+  return json;
+}
+
+/* ── Fetch all — staggered pairs to avoid rate limits ── */
+async function fetchAll() {
+  const btn = document.getElementById('refresh-btn');
+  btn.classList.add('spinning'); btn.disabled = true;
+  const results = {};
+  let done = 0;
+
+  // Fire in pairs, 2 seconds apart
+  const PAIR_SIZE = 2;
+  const PAIR_DELAY = 2000;
+
+  for (let i = 0; i < COMPANIES.length; i += PAIR_SIZE) {
+    const batch = COMPANIES.slice(i, i + PAIR_SIZE);
+    setStatus('loading', `Fetching news... (${Math.min(i + PAIR_SIZE, COMPANIES.length)} of ${COMPANIES.length})`);
+
+    const settled = await Promise.allSettled(batch.map(c => fetchOne(c)));
+
+    settled.forEach((result, j) => {
+      const c = batch[j];
+      if (result.status === 'fulfilled') {
+        results[c.id] = result.value;
+        renderCard(c, result.value);
+      } else {
+        console.error(c.name, result.reason?.message);
+        results[c.id] = null;
+        renderCard(c, null);
+      }
+    });
+
+    if (i + PAIR_SIZE < COMPANIES.length) {
+      await new Promise(r => setTimeout(r, PAIR_DELAY));
+    }
+  }
+
+  writeCache(results);
+  const failed = COMPANIES.filter(c => !results[c.id]).length;
+  setStatus(failed ? 'error' : 'ok', failed ? `${failed} failed — try Refresh All` : 'All companies loaded');
+  setLastUpd(Date.now());
+  showNotice('');
+  btn.classList.remove('spinning'); btn.disabled = false;
+}
+
+/* ── Init ── */
+function init() {
+  buildGrid();
+  const cached = readCache();
+  if (cached && cached.data) {
+    COMPANIES.forEach(c => renderCard(c, cached.data[c.id] || null));
+    setStatus('ok', 'All companies loaded');
+    setLastUpd(cached.ts);
+  } else {
+    showNotice('<strong>Fetching live news</strong> — searching the web for each company now. Cards fill in as they load (~2–3 min total).');
+    fetchAll();
+  }
+}
+
+function doManualRefresh() { buildGrid(); showNotice(''); fetchAll(); }
+</script>
+</body>
+</html>
