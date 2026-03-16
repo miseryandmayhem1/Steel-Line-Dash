@@ -1,0 +1,11 @@
+{
+  "functions": {
+    "api/news.js": {
+      "maxDuration": 60
+    }
+  },
+  "rewrites": [
+    { "source": "/api/news", "destination": "/api/news" },
+    { "source": "/(.*)", "destination": "/public/index.html" }
+  ]
+}
